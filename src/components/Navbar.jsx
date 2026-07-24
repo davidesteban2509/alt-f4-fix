@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import logoImg from '../assets/logo.jpeg';
+import logoImg from '../assets/logo.png';
 import { 
   Laptop, 
   Wrench, 
