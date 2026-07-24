@@ -4,6 +4,7 @@ import {
   INITIAL_BUSINESS_CONFIG, 
   INITIAL_QUOTES 
 } from '../data/initialData';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 const AppContext = createContext();
 
@@ -76,6 +77,33 @@ export const AppProvider = ({ children }) => {
       return INITIAL_QUOTES;
     }
   });
+
+  // Fetch live quotes from Supabase database if configured
+  useEffect(() => {
+    if (isSupabaseConfigured() && supabase) {
+      supabase
+        .from('customer_quotes')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .then(({ data, error }) => {
+          if (!error && data && data.length > 0) {
+            const formatted = data.map(row => ({
+              id: row.id,
+              date: row.created_at ? row.created_at.replace('T', ' ').slice(0, 16) : row.date,
+              customerName: row.customer_name,
+              phone: row.phone,
+              device: row.device,
+              issue: row.issue,
+              addons: row.addons || [],
+              total: row.total,
+              status: row.status,
+              notes: row.notes
+            }));
+            setQuotes(formatted);
+          }
+        });
+    }
+  }, []);
 
   // Admin Access Lock State
   const [adminUnlocked, setAdminUnlocked] = useState(() => {
@@ -193,18 +221,56 @@ export const AppProvider = ({ children }) => {
       status: 'Pendiente',
       ...newQuoteData
     };
+
     setQuotes(prev => [fullQuote, ...prev]);
+
+    if (isSupabaseConfigured() && supabase) {
+      supabase.from('customer_quotes').insert([{
+        id: fullQuote.id,
+        customer_name: fullQuote.customerName,
+        phone: fullQuote.phone,
+        device: fullQuote.device,
+        issue: fullQuote.issue,
+        addons: fullQuote.addons,
+        total: fullQuote.total,
+        status: fullQuote.status,
+        notes: fullQuote.notes
+      }]).then(({ error }) => {
+        if (error) console.error('Supabase Sync Error:', error);
+      });
+    }
+
     return fullQuote;
   };
 
   const updateQuoteStatus = (quoteId, newStatus) => {
     setQuotes(prev => prev.map(q => q.id === quoteId ? { ...q, status: newStatus } : q));
     showToast(`Solicitud ${quoteId} actualizada a: ${newStatus}`);
+
+    if (isSupabaseConfigured() && supabase) {
+      supabase
+        .from('customer_quotes')
+        .update({ status: newStatus })
+        .eq('id', quoteId)
+        .then(({ error }) => {
+          if (error) console.error('Supabase Update Error:', error);
+        });
+    }
   };
 
   const deleteQuote = (quoteId) => {
     setQuotes(prev => prev.filter(q => q.id !== quoteId));
     showToast(`Solicitud ${quoteId} eliminada`);
+
+    if (isSupabaseConfigured() && supabase) {
+      supabase
+        .from('customer_quotes')
+        .delete()
+        .eq('id', quoteId)
+        .then(({ error }) => {
+          if (error) console.error('Supabase Delete Error:', error);
+        });
+    }
   };
 
   const clearAllQuotes = () => {
