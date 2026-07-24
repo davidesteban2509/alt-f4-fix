@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
+import logoImg from '../assets/logo.jpeg';
 import { 
   Laptop, 
   Wrench, 
@@ -43,7 +44,7 @@ export const Navbar = () => {
           >
             <div className="relative overflow-hidden w-11 h-11 rounded-xl border border-cyan-500/40 shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform duration-300 bg-slate-900 flex items-center justify-center">
               <img 
-                src="/logo.jpeg" 
+                src={logoImg} 
                 alt="Alt-F4 Fix Logo" 
                 className="w-full h-full object-cover"
               />

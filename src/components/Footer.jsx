@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
+import logoImg from '../assets/logo.jpeg';
 import { Laptop, MapPin, Clock, PhoneCall, ShieldCheck, Heart } from 'lucide-react';
 
 export const Footer = () => {
@@ -14,7 +15,7 @@ export const Footer = () => {
           <div className="space-y-3 md:col-span-1">
             <div className="flex items-center gap-2">
               <div className="overflow-hidden w-9 h-9 rounded-xl border border-cyan-500/40 bg-slate-900 flex items-center justify-center">
-                <img src="/logo.jpeg" alt="Alt-F4 Fix Logo" className="w-full h-full object-cover" />
+                <img src={logoImg} alt="Alt-F4 Fix Logo" className="w-full h-full object-cover" />
               </div>
               <span className="text-lg font-bold text-white tracking-tight">
                 Alt-F4 <span className="text-cyan-400">Fix</span>
